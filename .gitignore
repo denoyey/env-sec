@@ -1,0 +1,6 @@
+# Original un-obfuscated script
+env-sec-ori.php
+
+# Environment Variables (Never commit these!)
+.env
+.env.decrypted
