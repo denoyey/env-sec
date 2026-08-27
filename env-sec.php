@@ -43,14 +43,11 @@ class EnvEncryptor
 
         $plaintext = file_get_contents($inputFile);
 
-        // Generate salt and IV
         $salt = random_bytes(self::SALT_LENGTH);
         $iv = random_bytes(self::IV_LENGTH);
 
-        // Derive key using PBKDF2
         $key = $this->deriveKey($password, $salt);
 
-        // Encrypt with AES-256-GCM
         $tag = '';
         $ciphertext = openssl_encrypt(
             $plaintext,
@@ -66,10 +63,8 @@ class EnvEncryptor
             exit(1);
         }
 
-        // Output format: [Salt(16)][IV(12)][Ciphertext][Tag(16)]
         $finalData = $salt . $iv . $ciphertext . $tag;
 
-        // Save as binary file
         file_put_contents($outputFile, $finalData);
 
         echo "\n[SUCCESS] Encrypted '$inputFile' to '$outputFile' successfully.\n";
@@ -84,23 +79,19 @@ class EnvEncryptor
 
         $data = file_get_contents($inputFile);
 
-        // Validate length
         $minLen = self::SALT_LENGTH + self::IV_LENGTH + self::TAG_LENGTH;
         if (strlen($data) < $minLen) {
             echo "\nError: File '$inputFile' is corrupted or invalid format.\n";
             exit(1);
         }
 
-        // Extract parts
         $salt = substr($data, 0, self::SALT_LENGTH);
         $iv = substr($data, self::SALT_LENGTH, self::IV_LENGTH);
         $tag = substr($data, -self::TAG_LENGTH);
         $ciphertext = substr($data, self::SALT_LENGTH + self::IV_LENGTH, -self::TAG_LENGTH);
 
-        // Derive key using PBKDF2
         $key = $this->deriveKey($password, $salt);
 
-        // Decrypt
         $plaintext = openssl_decrypt(
             $ciphertext,
             self::ALGO,
@@ -128,7 +119,6 @@ class EnvEncryptor
     {
         echo $prompt;
         
-        // Hide terminal output
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $input = trim(fgets(STDIN));
         } else {
@@ -142,7 +132,6 @@ class EnvEncryptor
     }
 }
 
-// Bootstrap
 if (php_sapi_name() !== 'cli') {
     die("This script can only be run from the CLI.");
 }
